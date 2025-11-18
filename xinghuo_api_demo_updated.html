@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>讯飞星火认知大模型演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .config-section h3 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .config-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .config-item {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .config-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .config-item input, .config-item select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+        
+        .assistant-message {
+            background: #e9ecef;
+            color: #212529;
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+        }
+        
+        .input-section {
+            display: flex;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            resize: none;
+            height: 60px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        #send-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        #send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        #clear-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        #clear-btn:hover {
+            background: #5a6268;
+        }
+        
+        .status {
+            padding: 10px 15px;
+            background: #d4edda;
+            color: #155724;
+            border-top: 1px solid #c3e6cb;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .token-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .config-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            
+            .input-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 讯飞星火认知大模型</h1>
+            <p>基于WebSocket API的智能对话系统</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="config-section">
+                <h3>⚙️ API配置</h3>
+                <div class="config-row">
+                    <div class="config-item">
+                        <label for="app-id">App ID:</label>
+                        <input type="text" id="app-id" value="D18380E1" placeholder="请输入您的App ID">
+                    </div>
+                    <div class="config-item">
+                        <label for="api-key">API Key:</label>
+                        <input type="password" id="api-key" value="A329E7B8787ED23bb453FD12E0E55550" placeholder="请输入您的API Key">
+                    </div>
+                    <div class="config-item">
+                        <label for="api-secret">API Secret:</label>
+                        <input type="password" id="api-secret" value="YjE0NDllMTg3NjA5ODQ3NzViNzMxZDU4" placeholder="请输入您的API Secret">
+                    </div>
+                    <div class="config-item">
+                        <label for="model-version">模型版本:</label>
+                        <select id="model-version">
+                            <option value="generalv4" selected>Spark Pro (generalv4)</option>
+                            <option value="generalv3.5">Spark Max (v3.5)</option>
+                            <option value="generalv3">Spark Pro (v3)</option>
+                            <option value="lite">Spark Lite</option>
+                            <option value="4.0Ultra">Spark 4.0 Ultra</option>
+                            <option value="pro-128k">Spark Pro-128K</option>
+                            <option value="max-32k">Spark Max-32K</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message assistant-message">
+                        你好！我是讯飞星火认知大模型，由科大讯飞研发。我可以回答问题、创作文字、表达观点、玩游戏等。请在下方输入您的问题，我将为您解答！
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <textarea id="user-input" placeholder="请输入您的问题..."></textarea>
+                    <div class="button-group">
+                        <button id="send-btn">发送</button>
+                        <button id="clear-btn">清空</button>
+                    </div>
+                </div>
+                
+                <div class="status" id="status">
+                    状态: 等待输入...
+                </div>
+            </div>
+            
+            <div class="token-info">
+                <span>提示Token: <span id="prompt-tokens">0</span></span>
+                <span>补全Token: <span id="completion-tokens">0</span></span>
+                <span>总Token: <span id="total-tokens">0</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 讯飞星火配置
+        const SPARK_CONFIG = {
+            appId: 'D18380E1',
+            apiKey: 'A329E7B8787ED23bb453FD12E0E55550',
+            apiSecret: 'YjE0NDllMTg3NjA5ODQ3NzViNzMxZDU4',
+            domain: 'generalv4',
+            url: 'wss://spark-openapi.cn-huabei-1.xf-yun.com/v1/assistants/b1s8iepzjs76_v1'
+        };
+
+        // 全局变量
+        let chatHistory = [];
+        let currentWebSocket = null;
+        let fullResponse = '';
+        
+        // DOM元素
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const statusDiv = document.getElementById('status');
+        const promptTokens = document.getElementById('prompt-tokens');
+        const completionTokens = document.getElementById('completion-tokens');
+        const totalTokens = document.getElementById('total-tokens');
+        
+        // 模型版本对应的WebSocket URL
+        const modelUrls = {
+            'generalv4': 'wss://spark-openapi.cn-huabei-1.xf-yun.com/v1/assistants/b1s8iepzjs76_v1',
+            'generalv3.5': 'wss://spark-api.xf-yun.com/v3.5/chat',
+            'generalv3': 'wss://spark-api.xf-yun.com/v3.1/chat',
+            'lite': 'wss://spark-api.xf-yun.com/v1.1/chat',
+            '4.0Ultra': 'wss://spark-api.xf-yun.com/v4.0/chat',
+            'pro-128k': 'wss://spark-api.xf-yun.com/chat/pro-128k',
+            'max-32k': 'wss://spark-api.xf-yun.com/chat/max-32k'
+        };
+        
+        // 模型名称映射
+        const modelNames = {
+            'generalv4': 'Spark Pro (generalv4)',
+            'generalv3.5': 'Spark Max',
+            'generalv3': 'Spark Pro',
+            'lite': 'Spark Lite',
+            '4.0Ultra': 'Spark 4.0 Ultra',
+            'pro-128k': 'Spark Pro-128K',
+            'max-32k': 'Spark Max-32K'
+        };
+        
+        // 生成WebSocket连接URL
+        function getWebSocketUrl() {
+            return new Promise((resolve, reject) => {
+                const appId = document.getElementById('app-id').value || SPARK_CONFIG.appId;
+                const apiKey = document.getElementById('api-key').value || SPARK_CONFIG.apiKey;
+                const apiSecret = document.getElementById('api-secret').value || SPARK_CONFIG.apiSecret;
+                const modelVersion = document.getElementById('model-version').value || SPARK_CONFIG.domain;
+                
+                if (!appId || !apiKey || !apiSecret) {
+                    reject(new Error('请先填写完整的API配置信息'));
+                    return;
+                }
+                
+                // 如果是generalv4，使用特殊URL
+                let url = modelVersion === 'generalv4' ? SPARK_CONFIG.url : modelUrls[modelVersion];
+                
+                if (!url) {
+                    reject(new Error('不支持的模型版本'));
+                    return;
+                }
+                
+                const host = new URL(url).host;
+                const date = new Date().toUTCString();
+                const algorithm = 'hmac-sha256';
+                const headers = 'host date request-line';
+                
+                // 根据URL格式调整路径
+                const path = new URL(url).pathname;
+                const signatureOrigin = `host: ${host}\ndate: ${date}\nGET ${path} HTTP/1.1`;
+                
+                // 使用CryptoJS进行HMAC-SHA256签名
+                const CryptoJS = window.CryptoJS;
+                if (!CryptoJS) {
+                    reject(new Error('CryptoJS库未加载，请确保已引入'));
+                    return;
+                }
+                
+                const signatureSha = CryptoJS.HmacSHA256(signatureOrigin, apiSecret);
+                const signature = CryptoJS.enc.Base64.stringify(signatureSha);
+                const authorizationOrigin = `api_key="${apiKey}", algorithm="${algorithm}", headers="${headers}", signature="${signature}"`;
+                const authorization = btoa(authorizationOrigin);
+                
+                const fullUrl = `${url}?authorization=${authorization}&date=${date}&host=${host}`;
+                resolve(fullUrl);
+            });
+        }
+        
+        // 创建WebSocket连接并发送消息
+        async function connectAndSend() {
+            try {
+                const url = await getWebSocketUrl();
+                const userMessage = userInput.value.trim();
+                
+                if (!userMessage) {
+                    updateStatus('请输入问题', 'error');
+                    return;
+                }
+                
+                // 添加用户消息到聊天记录
+                chatHistory.push({
+                    role: 'user',
+                    content: userMessage
+                });
+                
+                // 显示用户消息
+                addMessageToChat(userMessage, 'user');
+                userInput.value = '';
+                
+                // 显示加载状态
+                fullResponse = '';
+                const loadingMsg = addMessageToChat('思考中...', 'assistant', true);
+                
+                // 更新状态
+                updateStatus('正在连接星火API...', 'info');
+                
+                // 创建WebSocket连接
+                currentWebSocket = new WebSocket(url);
+                
+                currentWebSocket.onopen = function(event) {
+                    updateStatus('连接成功，正在发送请求...', 'info');
+                    
+                    // 构建请求参数
+                    const modelVersion = document.getElementById('model-version').value || SPARK_CONFIG.domain;
+                    const params = {
+                        header: {
+                            app_id: document.getElementById('app-id').value || SPARK_CONFIG.appId,
+                            uid: 'web-' + Date.now().toString(36)
+                        },
+                        parameter: {
+                            chat: {
+                                domain: modelVersion,
+                                temperature: 0.5,
+                                max_tokens: 2048
+                            }
+                        },
+                        payload: {
+                            message: {
+                                text: [...chatHistory]
+                            }
+                        }
+                    };
+                    
+                    // 发送请求
+                    currentWebSocket.send(JSON.stringify(params));
+                };
+                
+                currentWebSocket.onmessage = function(event) {
+                    try {
+                        const resultData = JSON.parse(event.data);
+                        
+                        // 检查是否有错误
+                        if (resultData.header && resultData.header.code !== 0) {
+                            updateStatus(`API错误: ${resultData.header.code} - ${resultData.header.message}`, 'error');
+                            currentWebSocket.close();
+                            return;
+                        }
+                        
+                        // 检查是否有payload和choices
+                        if (resultData.payload && resultData.payload.choices && resultData.payload.choices.text) {
+                            const content = resultData.payload.choices.text[0].content || '';
+                            fullResponse += content;
+                            
+                            // 更新加载消息
+                            updateLoadingMessage(loadingMsg, fullResponse);
+                        } else if (resultData.choices) {
+                            // 处理另一种响应格式
+                            const choice = resultData.choices && resultData.choices[0];
+                            if (choice && choice.delta && choice.delta.content) {
+                                fullResponse += choice.delta.content;
+                                updateLoadingMessage(loadingMsg, fullResponse);
+                            }
+                        }
+                        
+                        // 检查是否完成
+                        if (resultData.header && resultData.header.status === 2) {
+                            // 添加助手回复到聊天记录
+                            chatHistory.push({
+                                role: 'assistant',
+                                content: fullResponse
+                            });
+                            
+                            // 更新Token信息
+                            if (resultData.payload && resultData.payload.usage) {
+                                const usage = resultData.payload.usage;
+                                promptTokens.textContent = usage.prompt_tokens || 0;
+                                completionTokens.textContent = usage.completion_tokens || 0;
+                                totalTokens.textContent = usage.total_tokens || 0;
+                            }
+                            
+                            updateStatus('回答完成', 'success');
+                            currentWebSocket.close();
+                        } else if (resultData.choices && resultData.choices[0] && resultData.choices[0].finish_reason === 'stop') {
+                            // 处理另一种完成状态
+                            chatHistory.push({
+                                role: 'assistant',
+                                content: fullResponse
+                            });
+                            
+                            updateStatus('回答完成', 'success');
+                            currentWebSocket.close();
+                        }
+                    } catch (error) {
+                        console.error('处理消息时出错:', error);
+                        updateStatus('处理响应时出错', 'error');
+                    }
+                };
+                
+                currentWebSocket.onerror = function(error) {
+                    console.error('WebSocket错误:', error);
+                    updateStatus('连接错误', 'error');
+                    removeLoadingMessage(loadingMsg);
+                };
+                
+                currentWebSocket.onclose = function(event) {
+                    updateStatus('连接已关闭', 'info');
+                };
+                
+            } catch (error) {
+                console.error('连接错误:', error);
+                updateStatus(error.message, 'error');
+            }
+        }
+        
+        // 添加消息到聊天界面
+        function addMessageToChat(content, role, isLoading = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            if (isLoading) {
+                messageDiv.innerHTML = `<span class="loading"></span> ${content}`;
+                messageDiv.id = 'loading-message';
+            } else {
+                messageDiv.textContent = content;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return messageDiv;
+        }
+        
+        // 更新加载消息
+        function updateLoadingMessage(messageElement, content) {
+            messageElement.innerHTML = content;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 移除加载消息
+        function removeLoadingMessage(messageElement) {
+            if (messageElement && messageElement.parentNode) {
+                messageElement.parentNode.removeChild(messageElement);
+            }
+        }
+        
+        // 更新状态
+        function updateStatus(message, type = 'info') {
+            statusDiv.textContent = `状态: ${message}`;
+            
+            // 根据类型设置样式
+            statusDiv.style.backgroundColor = 
+                type === 'error' ? '#f8d7da' : 
+                type === 'success' ? '#d4edda' : 
+                '#cce5ff';
+                
+            statusDiv.style.color = 
+                type === 'error' ? '#721c24' : 
+                type === 'success' ? '#155724' : 
+                '#004085';
+        }
+        
+        // 清空聊天记录
+        function clearChat() {
+            chatHistory = [];
+            chatMessages.innerHTML = '<div class="message assistant-message">你好！我是讯飞星火认知大模型，请在下方输入您的问题，我将为您解答！</div>';
+            promptTokens.textContent = '0';
+            completionTokens.textContent = '0';
+            totalTokens.textContent = '0';
+            updateStatus('聊天记录已清空', 'success');
+        }
+        
+        // 事件监听器
+        sendBtn.addEventListener('click', connectAndSend);
+        
+        clearBtn.addEventListener('click', clearChat);
+        
+        userInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                connectAndSend();
+            }
+        });
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('请开始对话');
+            
+            // 添加CryptoJS库
+            if (typeof window.CryptoJS === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js';
+                document.head.appendChild(script);
+            }
+            
+            // 设置默认值
+            document.getElementById('app-id').value = SPARK_CONFIG.appId;
+            document.getElementById('api-key').value = SPARK_CONFIG.apiKey;
+            document.getElementById('api-secret').value = SPARK_CONFIG.apiSecret;
+            document.getElementById('model-version').value = SPARK_CONFIG.domain;
+        });
+    </script>
+</body>
+</html>
